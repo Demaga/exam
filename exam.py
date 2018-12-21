@@ -46,6 +46,12 @@ def plot():
                 new_dict[i] = dataset[airport]['Domestic']['Arrival'][date][i]
             else:
                 new_dict[i] += dataset[airport]['Domestic']['Arrival'][date][i]
+    for date in dataset[airport]['Domestic']['Departure']:
+        for i in dataset[airport]['Domestic']['Departure'][date]:
+            if i not in new_dict:
+                new_dict[i] = dataset[airport]['Domestic']['Departure'][date][i]
+            else:
+                new_dict[i] += dataset[airport]['Domestic']['Departure'][date][i]
     keys_3 = list(new_dict.keys())
     values_3 = list(new_dict.values())
     chart_3 = go.Bar(
