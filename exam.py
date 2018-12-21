@@ -6,18 +6,55 @@ from plotly import tools
 
 
 
-def plot_1():
-    keys = []
-    values = []
+
+def plot():
+    fig = tools.make_subplots(rows=2, cols=2)
+
+    keys_1 = []
+    values_1 = []
     for date in dataset[airport]['Domestic']['Arrival']:
         date_total = 0
         for i in dataset[airport]['Domestic']['Arrival'][date]:
             date_total += dataset[airport]['Domestic']['Arrival'][date][i]
-        keys.append(date)
-        values.append(date_total)
+        keys_1.append(date)
+        values_1.append(date_total)
+    chart_1 = go.Scatter(
+        x=keys_1,
+        y=values_1
+    )
+    fig.append_trace(chart_1, 1, 1)
 
-    chart = go.Scatter(x=keys, y=values, name='Chart')
-    plotly.offline.plot(chart, filename='plotly.html')
+    keys_2 = []
+    values_2 = []
+    for date in dataset[airport]['Domestic']['Departure']:
+        date_total = 0
+        for i in dataset[airport]['Domestic']['Departure'][date]:
+            date_total += dataset[airport]['Domestic']['Departure'][date][i]
+        keys_2.append(date)
+        values_2.append(date_total)
+    chart_2 = go.Scatter(
+        x=keys_2,
+        y=values_2
+    )
+    fig.append_trace(chart_2, 1, 2)
+
+
+    new_dict = {}
+    for date in dataset[airport]['Domestic']['Arrival']:
+        for i in dataset[airport]['Domestic']['Arrival'][date]:
+            if i not in new_dict:
+                new_dict[i] = dataset[airport]['Domestic']['Arrival'][date][i]
+            else:
+                new_dict[i] += dataset[airport]['Domestic']['Arrival'][date][i]
+    keys_3 = list(new_dict.keys())
+    values_3 = list(new_dict.values())
+    chart_3 = go.Bar(
+        x=keys_3,
+        y=values_3
+    )
+    fig.append_trace(chart_3, 2, 1)
+
+    plotly.offline.plot(fig, filename='plotly.html')
 
 
 def eliminate(line):
@@ -62,7 +99,7 @@ def get_dom_int(line):
 def get_num_pass(line):
     dom_int, mod_line = get_dom_int(line)
     result = re.split(r',', mod_line, maxsplit=1)
-    pass_num = re.findall(r'\d', result[0])
+    pass_num = re.findall(r'\d{1,}', result[0])
     pass_num = float(pass_num[0])
     return pass_num
 
@@ -81,6 +118,7 @@ try:
             arr_dep = get_arr_dep(line)[0]
             dom_int = get_dom_int(line)[0]
             pass_num = get_num_pass(line)
+
             if airport not in dataset:
                 dataset[airport] = {}
             if dom_int not in dataset[airport]:
@@ -91,8 +129,8 @@ try:
                 dataset[airport][dom_int][arr_dep][date] = dict()
             dataset[airport][dom_int][arr_dep][date][terminal] = pass_num
             line_number += 1
-    #pprint.pprint(dataset)
-    plot_1()
+    pprint.pprint(dataset)
+    plot()
 
 
 
